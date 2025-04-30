@@ -80,7 +80,6 @@ best_f1 = 0
 patience = 3
 counter = 0
 
-
 def save_checkpoint(model, optimizer, epoch, loss, path):
     torch.save({
         'epoch': epoch,
@@ -89,7 +88,6 @@ def save_checkpoint(model, optimizer, epoch, loss, path):
         'loss': loss
     }, path)
     print(f"Checkpoint saved at {path}")
-
 
 def evaluate():
     model.eval()
@@ -119,7 +117,6 @@ def evaluate():
     plt.close()
 
     return total_loss / len(test_loader.dataset), acc, f1
-
 
 def train():
     global best_f1, counter
@@ -183,7 +180,6 @@ def train():
         json.dump({"loss": losses, "accuracy": accs}, f, indent=4)
 
     writer.close()
-
 
 if __name__ == '__main__':
     train()

@@ -8,7 +8,6 @@ import numpy as np
 from torchvision import transforms
 from torchvision.transforms import ToPILImage
 
-
 class VideoDataset(Dataset):
     def __init__(self, dataset_path, label_map_path, cache_path, transform, sequence_length, img_size):
         self.dataset_path = dataset_path

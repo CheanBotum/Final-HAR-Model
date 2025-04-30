@@ -1,7 +1,4 @@
-# generate_classInd.py
-
 import os
-
 dataset_path = "data/UCF101"
 output_path = "data/classInd.txt"
 

@@ -8,7 +8,7 @@ class Config:
     test_cache_dir = "data/cache/test"
     label_map_path = "data/classInd.txt"
 
-    # Test annotations (make sure this file exists)
+    # Test annotations
     test_annotation_path = "data/test_annotations.csv" 
 
     # Image & Video Processing
