@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Human Activity Recognition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4">
+  <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-5xl fade-in">
+    <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">Human Activity Recognition</h1>
+
+    <div class="space-y-4">
+      <div>
+        <label for="file-upload" class="block mb-1 text-sm font-medium text-gray-600">Upload Video</label>
+        <input id="file-upload" type="file" accept="video/*" class="w-full px-3 py-2 border rounded-lg shadow-sm text-gray-700 file:bg-blue-50 file:text-blue-700 file:border-0 file:px-4 file:py-2" />
+        <p id="file-name-display" class="text-sm text-gray-500 mt-1"></p>
+      </div>
+
+      <div>
+        <label for="youtube-url" class="block mb-1 text-sm font-medium text-gray-600">Or YouTube URL</label>
+        <input id="youtube-url" type="text" placeholder="https://youtube.com/..." class="w-full px-3 py-2 border rounded-lg shadow-sm text-gray-700" />
+      </div>
+
+      <button id="upload-btn" type="button" class="w-full py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition">
+        Upload & Predict
+      </button>
+
+      <div id="loading-text" class="text-center text-gray-500 text-sm hidden mt-2"> Processing... Please wait.</div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result-section" class="mt-8 hidden">
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Left Column: Video/Image + Prediction Label -->
+        <div>
+          <video id="video-player" controls autoplay muted playsinline class="w-full rounded-xl shadow-md hidden"></video>
+          <img id="uploaded-image" alt="Uploaded preview" class="w-full rounded-xl shadow-md hidden" />
+          <!-- Prediction label below video/image -->
+          <div class="text-center text-blue-600 font-semibold text-md mt-4">
+            Predicted Activity: <span id="prediction-text"></span>
+          </div>
+        </div>
+
+        <!-- Right Column: Chart -->
+        <div class="flex flex-col items-center justify-center">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4">Top-5 Predictions</h3>
+          <canvas id="prediction-chart" width="400" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('file-upload');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const uploadBtn = document.getElementById('upload-btn');
+    const loadingText = document.getElementById('loading-text');
+    const resultSection = document.getElementById('result-section');
+    const videoPlayer = document.getElementById('video-player');
+    const imageTag = document.getElementById('uploaded-image');
+    const predictionText = document.getElementById('prediction-text');
+    const youtubeUrlInput = document.getElementById('youtube-url');
+
+    let chartInstance = null;
+
+    fileInput.addEventListener('change', () => {
+      fileNameDisplay.textContent = fileInput.files[0]?.name || '';
+    });
+
+    uploadBtn.addEventListener('click', async () => {
+      const file = fileInput.files[0];
+      const youtubeUrl = youtubeUrlInput.value.trim();
+      const formData = new FormData();
+
+      if (file) formData.append('video', file);
+      else if (youtubeUrl) formData.append('youtube_url', youtubeUrl);
+      else return alert('Please upload a file or enter a YouTube URL.');
+
+      uploadBtn.disabled = true;
+      loadingText.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+
+      try {
+        const res = await fetch('/predict', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        predictionText.textContent = data.prediction;
+
+        if (data.video_url) {
+          videoPlayer.src = data.video_url;
+          videoPlayer.classList.remove('hidden');
+          imageTag.classList.add('hidden');
+        } else {
+          imageTag.src = data.image_url;
+          imageTag.classList.remove('hidden');
+          videoPlayer.classList.add('hidden');
+        }
+
+        const labels = data.predictions.map(p => p[0]);
+        const scores = data.predictions.map(p => (p[1] * 100).toFixed(2));
+
+        if (chartInstance) chartInstance.destroy();
+        const ctx = document.getElementById('prediction-chart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Confidence (%)',
+              data: scores,
+              backgroundColor: 'rgba(59, 130, 246, 0.6)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: { callback: value => value + "%" }
+              }
+            }
+          }
+        });
+
+        resultSection.classList.remove('hidden');
+      } catch (err) {
+        alert("Error: " + err.message);
+      } finally {
+        uploadBtn.disabled = false;
+        loadingText.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
