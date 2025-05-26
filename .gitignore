@@ -1,0 +1,30 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+env/
+
+# OS files
+.DS_Store
+
+# Logs
+*.log
+
+# Data files (training/testing)
+data/
+*.mp4
+*.avi
+*.jpg
+*.jpeg
+*.png
+*.csv
+
+# Model checkpoints
+*.pt
+*.pth
+checkpoints/
+
+# Git LFS metadata
+.gitattributes
