@@ -22,9 +22,6 @@ This project implements a **Human Activity Recognition (HAR) model** trained on 
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 
-<<<<<<< HEAD
----
-
 ## Overview
 
 - **Goal**: Classify short video clips into one of 101 human activities.
@@ -32,7 +29,6 @@ This project implements a **Human Activity Recognition (HAR) model** trained on 
 - **Output**: Top-5 predicted actions with confidence + labeled preview image
 - **Deployment**: Flask REST API
 
----
 
 ## Dataset
 
@@ -47,13 +43,11 @@ This project implements a **Human Activity Recognition (HAR) model** trained on 
 - **Input**: Sampled and preprocessed frames from video
 - **Output**: Top-5 predicted activity labels with confidence
 
----
 
 ## Flask API
 
 A RESTful API interface is provided for inference using video files or YouTube links. It processes video, runs the model, and returns predictions + annotated previews.
 
----
 
 ## Installation
 
@@ -85,8 +79,6 @@ logs/best_model.pth
 python app.py
 ```
 
----
-
 ## Usage
 
 Once the API is running (default: `http://127.0.0.1:5000`), you can send requests using `curl`, Postman, or Python.
@@ -98,7 +90,6 @@ Once the API is running (default: `http://127.0.0.1:5000`), you can send request
 | POST   | `/predict`       | File upload    | Upload a video file (MP4, AVI, etc.) |
 | POST   | `/predict_url`   | Form URL       | Submit a YouTube video URL  |
 
----
 
 ### Example Request
 
@@ -129,7 +120,6 @@ curl -X POST http://127.0.0.1:5000/predict_url \
 }
 ```
 
----
 
 ## Project Structure
 
@@ -178,7 +168,7 @@ pip install -r requirements.txt
 
 
 ** Built for research, prototyping, and real-time human activity recognition**
-=======
+
 ## Overview
 
 - **Goal**: Recognize and classify human activities in video clips.
