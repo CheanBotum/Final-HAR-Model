@@ -1,14 +1,15 @@
 import os
 import torch
+import json
 
 class Config:
     # Dataset & Cache
     dataset_path = "data/UCF101"
     cache_path = "data/cache/data.arrow"
     test_cache_dir = "data/cache/test"
-    label_map_path = "data/classInd.txt"
-
-    # Test annotations
+    # label_map_path = "data/classInd.txt"
+    label_map_path="data/ucf101_label_map.json"
+    # Test annotations (make sure this file exists)
     test_annotation_path = "data/test_annotations.csv" 
 
     # Image & Video Processing

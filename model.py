@@ -1,8 +1,8 @@
-#model
-
 import torch.nn as nn
 import torchvision.models as models
 import torch
+
+
 class Attention(nn.Module):
     def __init__(self, hidden_size):
         super(Attention, self).__init__()
@@ -17,6 +17,7 @@ class Attention(nn.Module):
         attn_weights = torch.softmax(self.attn(lstm_out), dim=1)  # (batch_size, seq_len, 1)
         context = torch.sum(attn_weights * lstm_out, dim=1)       # (batch_size, hidden_size)
         return context
+
 
 class CNN_LSTM(nn.Module):
     def __init__(self, num_classes, sequence_length, hidden_dim=256, lstm_layers=2, dropout=0.5, pretrained=True):

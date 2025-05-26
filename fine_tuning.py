@@ -40,13 +40,11 @@ writer = SummaryWriter(log_dir='runs/har_fine_tune')
 
 # Load dataset with transforms
 transform = get_transforms(Config.img_size)
-dataset = VideoDataset(
-    Config.dataset_path,
-    Config.label_map_path,
-    Config.cache_path,
-    transform,
-    Config.frames_per_clip,
-    Config.img_size
+dataset = ImageSequenceDataset(
+    dataset_path=Config.dataset_path,
+    label_map_path=Config.label_map_path,
+    transform=transform,
+    frames_per_clip=Config.frames_per_clip
 )
 
 # Split dataset
