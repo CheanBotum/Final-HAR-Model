@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 # Human Activity Recognition (UCF101)
 
 This project implements a **Human Activity Recognition (HAR) model** trained on the **UCF101** dataset using a **CNN-LSTM architecture**. A lightweight **Flask API** enables users to upload video files or provide YouTube URLs and receive the top-5 predicted action classes with annotated visual output.
 
----
-=======
 # Final-HAR-Model
 
 This project implements a **Human Activity Recognition (HAR) model** trained on the **UCF101** dataset using a **CNN-LSTM architecture**. A lightweight **Flask API** is provided for inference, allowing users to submit videos (or YouTube URLs) and receive action predictions and visual outputs.
