@@ -177,7 +177,6 @@ pip install -r requirements.txt
 
 - **UCF101**: A dataset of 13,320 video clips from 101 human action classes including sports, daily activities, and gestures.
 - All training and testing are done **only on UCF101**.  
-- No external datasets (e.g., HMDB) are used.
 
 ## Model Architecture
 
