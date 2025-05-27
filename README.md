@@ -17,15 +17,13 @@ This project implements a **Human Activity Recognition (HAR) model** trained on 
   - [API Endpoints](#api-endpoints)
   - [Example Request](#example-request)
 - [Project Structure](#project-structure)
-- [Dependencies](#dependencies)
-- [License](#license)
 - [Acknowledgments](#acknowledgments)
 
 ## Overview
 
 - **Goal**: Classify short video clips into one of 101 human activities.
 - **Input**: Local video file or YouTube link
-- **Output**: Top-5 predicted actions with confidence + labeled preview image
+- **Output**: Top-5 predicted actions with confidence + labeled preview video
 - **Deployment**: Flask REST API
 
 
@@ -115,7 +113,7 @@ curl -X POST http://127.0.0.1:5000/predict_url \
     {"label": "JumpRope", "score": 0.02},
     {"label": "SoccerJuggling", "score": 0.01}
   ],
-  "preview_image": "/static/results/preview.jpg"
+  "preview_video": "/static/results/preview.mp4"
 }
 ```
 
@@ -133,7 +131,7 @@ human-activity-recognition/
 │   └── index.html         
 ├── static/
 │   ├── uploads/           # Store Uploaded videos
-│   ├── results/           # Annotated frames/images
+│   ├── results/          
 ├── logs/
 │   └── best_model.pth      
 ├── requirements.txt       # Python dependencies
