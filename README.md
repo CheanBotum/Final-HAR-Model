@@ -1,50 +1,54 @@
-# Human Activity Recognition (UCF101)
+# Enhanced Human Activity Recognition Through a CNN-LSTM Hybrid Model 
 
-This project implements a **Human Activity Recognition (HAR) model** trained on the **UCF101** dataset using a **CNN-LSTM architecture**. A lightweight **Flask API** enables users to upload video files or provide YouTube URLs and receive the top-5 predicted action classes with annotated visual output.
+This project implements a **Human Activity Recognition (HAR) system** trained on the **UCF101** dataset using a **CNN-LSTM** architecture with **attention**. It features a powerful **Flask-based web app** that allows users to:
 
-# Final-HAR-Model
-
-This project implements a **Human Activity Recognition (HAR) model** trained on the **UCF101** dataset using a **CNN-LSTM architecture**. A lightweight **Flask API** is provided for inference, allowing users to submit videos (or YouTube URLs) and receive action predictions and visual outputs.
+- Upload video files or paste online video links (YouTube, TikTok, Facebook, etc.)
+- Predict **multiple actions** occurring across video segments
+- View a **video player with real-time action display**
+- See top-5 prediction chart per segment
+- Automatically fallback to **CLIP-based zero-shot prediction** for unseen or unknown actions
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Dataset](#dataset)
 - [Model Architecture](#model-architecture)
-- [Flask API](#flask-api)
+- [Flask App Features](#flask-app-features)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [API Endpoints](#api-endpoints)
-  - [Example Request](#example-request)
 - [Project Structure](#project-structure)
+- [Dependencies](#dependencies)
 - [Acknowledgments](#acknowledgments)
 
 ## Overview
 
-- **Goal**: Classify short video clips into one of 101 human activities.
-- **Input**: Local video file or YouTube link
-- **Output**: Top-5 predicted actions with confidence + labeled preview video
-- **Deployment**: Flask REST API
-
+- **Goal**: Recognize and classify human activities in video clips.
+- **Input**: Local video file or any online video link (YouTube, TikTok, etc.)
+- **Output**: Segment-wise predicted actions with confidence and top-5 chart
+- **Backup Prediction**: Uses CLIP zero-shot inference for unknown actions
 
 ## Dataset
 
 - **UCF101**: 13,320 videos across 101 categories (sports, daily life, gestures, etc.)
-- Used exclusively for training and evaluation
+- Used for training and evaluation
+- Optional: Extend using `extended_label_map.json` for zero-shot support
 
 ## Model Architecture
 
-- **CNN Backbone**: ResNet-18 for frame-wise feature extraction
-- **Temporal Modeling**: LSTM layer to capture sequential motion
-- **Classifier**: Fully-connected layer mapping to 101 classes
-- **Input**: Sampled and preprocessed frames from video
-- **Output**: Top-5 predicted activity labels with confidence
+- **CNN**: ResNet-18 for spatial feature extraction
+- **LSTM**: Bidirectional LSTM with attention for temporal modeling
+- **Attention**: Focus mechanism on relevant time steps
+- **Input**: Sequences of resized frames (e.g., 16 frames per clip)
+- **Output**: Top-1 and Top-5 predictions with probabilities
 
+## Flask App Features
 
-## Flask API
-
-A RESTful API interface is provided for inference using video files or YouTube links. It processes video, runs the model, and returns predictions + annotated previews.
-
+- Upload local video file
+- Paste public video URL (supports many platforms)
+- Automatically segments long video into overlapping clips
+- Predict action for each segment
+- Show timeline overlay if multiple actions are present
+- Fallback to CLIP model for unknown/unseen actions
 
 ## Installation
 
@@ -56,18 +60,19 @@ cd Final-HAR-Model
 
 ### 2. Create and activate a virtual environment
 ```bash
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+conda create -p ./.conda python=3.9 -y
+conda activate ./.conda
 ```
 
-### 3. Install Python dependencies
+### 3. Install dependencies
 ```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 pip install -r requirements.txt
 ```
 
 ### 4. Add pretrained model weights
-Place your trained UCF101 model file as:
-```
+```bash
+# Place your trained UCF101 model here:
 logs/best_model.pth
 ```
 
@@ -78,121 +83,69 @@ python app.py
 
 ## Usage
 
-Once the API is running (default: `http://127.0.0.1:5000`), you can send requests using `curl`, Postman, or Python.
+Launch the web interface at: [http://localhost:5000](http://localhost:5000)
 
-### API Endpoints
+You can upload a video or enter a video URL.
 
-| Method | Endpoint        | Input Type     | Description                  |
-|--------|------------------|----------------|------------------------------|
-| POST   | `/predict`       | File upload    | Upload a video file (MP4, AVI, etc.) |
-| POST   | `/predict_url`   | Form URL       | Submit a YouTube video URL  |
-
-
-### Example Request
-
-####  Upload a video file:
+#### Example curl request
 ```bash
 curl -X POST http://127.0.0.1:5000/predict \
-  -F "video=@examples/sample_video.mp4"
+  -F "video=@examples/sample.mp4"
 ```
 
-####  Send a YouTube URL:
-```bash
-curl -X POST http://127.0.0.1:5000/predict_url \
-  -F "url=https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-```
-
-#### Sample Response:
+#### Example JSON Response
 ```json
 {
-  "top_prediction": "Basketball",
-  "top_5": [
-    {"label": "Basketball", "score": 0.84},
-    {"label": "VolleyballSpiking", "score": 0.07},
-    {"label": "Diving", "score": 0.04},
-    {"label": "JumpRope", "score": 0.02},
-    {"label": "SoccerJuggling", "score": 0.01}
+  "segment_predictions": [
+    {"label": "Running", "confidence": 0.88, "top5": [["Running", 0.88], ["Walking", 0.06], ...]},
+    {"label": "JumpRope", "confidence": 0.91, "top5": [["JumpRope", 0.91], ["Skipping", 0.05], ...]}
   ],
-  "preview_video": "/static/results/preview.mp4"
+  "video_url": "/static/uploads/unique_video.mp4"
 }
 ```
 
-
 ## Project Structure
-
 ```
-human-activity-recognition/
-├── app.py                 # Main Flask API
-├── config.py              # Config loader
-├── model.py               # CNN-LSTM model definition
-├── utils.py               # Frame sampling, preprocessing, YouTube/ffmpeg helpers
-├── transforms.py               
-├── templates/
-│   └── index.html         
+Final-HAR-Model/
+├── app.py                   # Flask web app (video handling, inference, UI)
+├── config.py                # Configurations (paths, hyperparams)
+├── model.py                 # CNN-LSTM with attention
+├── transforms.py            # Preprocessing transforms
+├── zero_shot_clip_predict.py # CLIP-based fallback for unseen actions
+├── extended_label_map.json  # Optional extended labels for zero-shot
 ├── static/
-│   ├── uploads/           # Store Uploaded videos
-│   ├── results/          
+│   ├── uploads/             # Uploaded videos
+│   └── processed_videos/   # Saved annotated outputs
+├── templates/
+│   └── index.html           # Web UI
 ├── logs/
-│   └── best_model.pth      
-├── requirements.txt       # Python dependencies
-└── README.md              # Project documentation
+│   └── best_model.pth       # Trained model checkpoint
+└── requirements.txt
 ```
 
 ## Dependencies
-
-Install with:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Key Libraries:
+### Key Libraries
 
-- [Flask](https://flask.palletsprojects.com/) - Web API
-- [PyTorch](https://pytorch.org/) - Model definition and inference
-- [OpenCV](https://opencv.org/) - Frame extraction and image handling
-- [pytube](https://github.com/pytube/pytube) - YouTube video download
-- [ffmpeg-python](https://github.com/kkroening/ffmpeg-python) - Format conversion
-- NumPy, Matplotlib, tqdm, Pillow
+- **Flask** – lightweight web framework
+- **PyTorch** – model training and inference
+- **OpenCV** – video handling
+- **transformers** – CLIP-based zero-shot prediction
+- **yt_dlp** – support for downloading videos from any platform
+- **ffmpeg-python** – for format conversion
 
-##  Acknowledgments
+## Acknowledgments
 
-- **UCF101 dataset** from the [University of Central Florida](https://www.crcv.ucf.edu/data/UCF101.php)
-- [PyTorch](https://pytorch.org/) for deep learning
-- [pytube](https://pytube.io/) for YouTube video handling
-- [OpenCV](https://opencv.org/) for video and image processing
-- [ffmpeg](https://ffmpeg.org/) for multimedia handling
+- [UCF101 Dataset](https://www.crcv.ucf.edu/data/UCF101.php)
+- [OpenAI CLIP](https://github.com/openai/CLIP)
+- [PyTorch](https://pytorch.org/)
+- [yt_dlp](https://github.com/yt-dlp/yt-dlp)
+- [ffmpeg](https://ffmpeg.org/)
 
+---
 
-** Built for research, prototyping, and real-time human activity recognition**
-
-## Overview
-
-- **Goal**: Recognize and classify human activities in video clips.
-- **Input**: Local video file or YouTube link.
-- **Output**: Top-5 predicted activity labels with confidence scores + annotated preview image or frame sequence.
-- **Deployment**: Inference through a RESTful Flask API.
-
-## Dataset
-
-- **UCF101**: A dataset of 13,320 video clips from 101 human action classes including sports, daily activities, and gestures.
-- All training and testing are done **only on UCF101**.  
-
-## Model Architecture
-
-- **Backbone**: ResNet-18 (used for per-frame feature extraction)
-- **Temporal Model**: LSTM for sequential temporal modeling
-- **Input**: Extracted and resized frames from video
-- **Output**: Probability distribution over 101 action classes
-
-## Flask API
-
-A minimal Flask API wraps the trained model to enable video-based prediction via HTTP requests.
-
-### Features
-
-- Upload local video files
-- Provide YouTube URLs (auto-downloaded via `pytube`)
-- Returns:
-  - Top-5 predictions
-  - Annotated preview frame
+Built for research, real-time demo, and scalable multi-action video classification.
