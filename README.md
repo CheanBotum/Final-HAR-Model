@@ -2,7 +2,7 @@
 
 This project implements a **Human Activity Recognition (HAR) system** trained on the **UCF101** dataset using a **CNN-LSTM** architecture with **attention**. It features a powerful **Flask-based web app** that allows users to:
 
-- Upload video files or paste online video links (YouTube, TikTok, Facebook, etc.)
+- Upload video files or paste online video links 
 - Predict **multiple actions** occurring across video segments
 - View a **video player with real-time action display**
 - See top-5 prediction chart per segment
@@ -148,4 +148,4 @@ pip install -r requirements.txt
 
 ---
 
-Built for research, real-time demo, and scalable multi-action video classification.
+Built for Final Year Thesis research 
